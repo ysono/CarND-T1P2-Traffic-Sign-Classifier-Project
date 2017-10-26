@@ -6,4 +6,8 @@ models
 *.p
 
 traffic-signs-data.zip
+checkpoint
+*.index
+*.meta
+*.data-*-of-*
 
