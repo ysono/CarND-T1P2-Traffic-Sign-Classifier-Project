@@ -3,6 +3,7 @@
 **Build a Traffic Sign Recognition Project**
 
 The goals / steps of this project are the following:
+
 * Load the data set (see below for links to the project data set)
 * Explore, summarize and visualize the data set
 * Design, train and test a model architecture
@@ -27,7 +28,7 @@ Follow along in the notebook [here](report.html#Step-0:-Load-The-Data).
 ####1. The submission includes the following:
 
 - This writeup
-- [notebook](Traffic_Sign_Classifier.ipynb) and its [html](report.html) version
+- The [notebook](Traffic_Sign_Classifier.ipynb) and its [html](report.html) version
 - The whole [project](https://github.com/ysono/CarND-T1P2-Traffic-Sign-Classifier-Project/) and its [readme](README.md)
 
 ###Data Set Summary & Exploration
@@ -48,13 +49,13 @@ Follow along in the notebook [here](report.html#Include-an-exploratory-visualiza
 
 First, a histogram is plotted to show the uneven distribution of classes in the training dataset.
 
-Then, a sample of each class is shown by choosing the first instance of that class in the training dataset (without shuffling the dataset).
+Then, a sample of each class is shown by choosing the first instance of that class. This is done for the training, validation, and test datasets (without shuffling the datasets).
 
 ###Design and Test a Model Architecture
 
 ####1. Describe how you preprocessed the image data. What techniques were chosen and why did you choose these techniques? Consider including images showing the output of each preprocessing technique. Pre-processing refers to techniques such as converting to grayscale, normalization, etc. (OPTIONAL: As described in the "Stand Out Suggestions" part of the rubric, if you generated additional data for training, describe why you decided to generate additional data, how you generated the data, and provide example images of the additional data. Then describe the characteristics of the augmented training set like number of images in the set, number of images for each class, etc.)
 
-The decisions on pre-processing and generation operations were iterative: for each change, a model was trained on the changed dataset and its accuracy was evaluated. These decisions were retained on rejected based on improvements on the model and performance side effects.
+The decisions on pre-processing and generation operations were iterative: for each change, a model was trained on the changed dataset and its accuracy was evaluated. These decisions were retained or rejected based on improvements on the model and performance side effects.
 
 Therefore, the presentation in this writeup and in the notebook is not chronological. The effect of each operation is visualized by applying that operation alone on the raw dataset. Follow along in the notebook [here](report.html#Pre-process-the-Data-Set-(normalization,-grayscale,-etc.)).
 
@@ -72,9 +73,14 @@ In order to normalize to the correct continuous range of scalars, the image was 
 
 ##### 3. Generating images by cropping
 
-This operation should improve translation invariance of the model.
+This operation cropped images at or beyond the boundary of the sign as identified in the raw dataset. The boundary was selected at random, s.t. if the operation was applied twice on the same image, different outputs would be produced.
 
-Cropping at the boundary of the sign as identified in the raw dataset introduces occlusion as well, because the boundaries are often too small and are cutting into the perimeter of the sign.
+If cropping happened exactly at the boundary, occlusion might be introduced, because the boundaries are often too small and are cutting into the perimeter of the sign.
+
+Some benefits of cropping are:
+
+- Eliminate prominent features from outside the sign, e.g. bright glare
+- Improve translation invariance of the model
 
 ##### 4. Generating images by distorting
 
@@ -90,6 +96,8 @@ Before noise was added, images must first undergo the normalization above which 
 
 At one point, training with dataset that had noise added (which doubled the size of the dataset) increased the validation accuracy by 2 percentage points.
 
+Certain patterns of noise have been shown to fool image classifiers in a way that is unintuitive to humans (Hosseini et al., 2017). While it is not clear whether the noise added in this project help train for such edge cases, the presence of such problem implies that noise ought to be added to the training dataset.
+
 ##### 6. Pipeline
 
 For every original raw training image:
@@ -100,28 +108,41 @@ For every original raw training image:
 
 An alternative was:
 
-1. Geneerate 3 additional images, by cropping, by distorting, and by adding noise
+1. Generate 3 additional images, by cropping, by distorting, and by adding noise
 1. Pre-process: grayscale then normalize.
 
 This alternative would yield 3x images per original. However, as mentioned above, generating random values for 3 rgb layers (only to later have them merged into 1 grayscale layer) was much more expensive. Generating 4x was cheaper than 3x. For this reason, the alternative pipeline was rejected.
 
 ##### 7. Evenly distribute classes in the training dataset
 
-After the multiplicity of the generation pipeline was determined, the amount of generation required was calculated across each class, such that all classes would end up with about the same amount of samples.
+After the multiplicity of the generation pipeline was determined, the amount of generation required was calculated across each class, such that all classes would end up with similar amounts of samples. In fact, it was possible to generate s.t. every class had exactly the same amount. In the notebook, the bar graph titled `Distribution of classifications in the generated training dataset` shows this.
 
-As an undesirable side effect, the size of the training dataset became completely skewed w.r.t. the validation dataset. Whereas the original ratio of validation vs trainig was `4410/34799 = 12.7%`, after generation, it became `4410/464502 = 0.9%`. This could explain the slow improvement in training accuracy w.r.t. validation accuracy, to be seen below. As a possible remedy for this problem, multiplicity of generation should be reduced for populous classes, e.g. by applying the pipeline to a portion of the raw dataset that is inversely proportional to the representation of the class. Another remedy could be to reallocate some samples from raw training dataset to validation; if we were aiming for `70/15/15` distribution, `15/70 = 21.4%`, and the original 12.7% was already too low.
+The details of the implementation are commented in function `generation_sampling`. Its summary is as follows:
+
+- The most populous class, the class number 2, has about 2000 raw samples
+- It was decided that 1% of class number 2 would still get passed to the generation pipeline, s.t. it would have about (2000 + 20 * 2 = 2040) samples
+- All other classes would generate enough to approximately match this amount
+- For every class, the whole set was multiplied by 2x by addition of noise, s.t. it would have about 4080 samples.
+
+As an undesirable side effect, the size of the training dataset became completely skewed w.r.t. the validation dataset. Whereas the original ratio of validation vs trainig was `4410/34799 = 12.7%`, after generation, it became `4410/176298 = 2.5%`. This could have worsened the lagging of training accuracy w.r.t. validation accuracy during early epochs, to be seen below.
+
+A possible remedy could be to reallocate some samples from raw training dataset to validation; if we were aiming for `70/15/15` distribution, `15/70 = 21.4%`, and the original 12.7% was already too low.
+
+Nevertheless, the resulting model performed very well, so this generation strategy was retained.
 
 ##### 8. Summary
 
-In LeCun's paper (Sermanet et al., 2011), he mentions
+In LeCun's paper (Sermanet et al., 2011), he mentions:
 
 > real-world variabilities such as viewpoint variations, lighting conditions (saturations, low-contrast), motion-blur, occlusions, sun glare, physical damage, colors fading, graffiti, stickers and an input resolution as low as 15x15
 
-The generation pipeline attempts to replicate some of these natural effects and apply them onto the raw dataset that already have these effects.
+The goal of sample generation is to replicate some of these natural effects and apply them onto the raw dataset, though they may already have these effects.
 
-The goal of pre-processing is to constrain the scalar of each pixel to `[-1, 1]`. The combination of grayscaling and normalizing changes the per-pixel memory from `3 * uint8 = 3 bytes` to `1 * float32 = 4 bytes`.
+The goal of pre-processing is to constrain the scalar of each pixel to `[-1, 1]`, and to consequently prevent weight instability. The combination of grayscaling and normalizing increased the per-pixel memory size from `3 * uint8 = 3 bytes` to `1 * float32 = 4 bytes`.
 
 ####2. Describe what your final model architecture looks like including model type, layers, layer sizes, connectivity, etc.) Consider including a diagram and/or table describing the final model.
+
+Follow along in the notebook [here](report.html#Model-Architecture).
 
 My final model consisted of the following layers:
 
@@ -137,39 +158,58 @@ My final model consisted of the following layers:
 | Fully connected       | from 5x5x16=400 neurons to 120 neurons        |
 | RELU                  |                                               |
 | Dropout               | 50%                                           |
-| Fully connected       | from 120 to 84 neurons                        |
+| Fully connected       | 84 neurons                                    |
 | RELU                  |                                               |
-| Fully connected       | from 84 to 43 neurons                         |
+| Fully connected       | 43 neurons                                    |
+
+![LeNet architecture](https://github.com/udacity/CarND-LeNet-Lab/raw/master/lenet.png)
 
 These aspects of the model were retained from the CarND LeNet lab:
 
 - The sizes of the convolution and fully-connected layers. They already worked well, and changing them did not yield any improvements.
-- Strides were kept at 1 to prevent excessive loss of information on inputs that were already low in resolution.
+- Strides were kept at 1 to prevent excessive loss of information on inputs, which were already low in resolution.
 - The use of RELU, in both convolution and fully-connected layers, due to emperical evidence of its superiority over sigmoid.
-- The randomnization of weights (`mu = 0; sigma = 0.1`). These were sensitive hyperparameters which greatly affected the rate of improvement of validation accuracy during early epochs.
-
-See [here](https://github.com/udacity/CarND-LeNet-Lab) for a diagram of LeNet architecture.
 
 Dropout was added. Its location was chosen by experiment to be at the layer with 120 outputs, and `keep_prob` was chosen at 50%.
 
 ####3. Describe how you trained your model. The discussion can include the type of optimizer, the batch size, number of epochs and any hyperparameters such as learning rate.
 
-The output of the model was interpreted as softmax logits, and cross-entropy was chosen as the cost. L2 cost was added for regularization. The L2 multiplier (lambda / n) was initially chosen at 0.1, and then divided by 10 till the optimal value of 0.0001 was found.
+Follow along in the notebook [here](report.html#Train,-Validate-and-Test-the-Model).
+
+The output of the model was converted to softmax, and hence cross-entropy was used as the cost.
+
+L2 cost was added. The L2 multiplier (lambda / n) was initially chosen at 0.1, and then divided by 10 till an optimal value of 0.0001 was found.
 
 The batch size of 10 was retained from the CarND LeNet lab, with the assumption it was optimized for aws g2.2xlarge.
 
-Consistently, the validation accuracy stayed higher than the training accuracy over all epochs, regardless of choice of hyperparameters. Both accuracies were generally improving, suggesting there was no overfitting yet. The two accuracies were also converging, as the improvement in the validation accuracy was slower than the improvement in the training accuracy. This was happening before L2 and dropout regularizations were added, and before massive data generation was implemented that skewed the relative size of the validation dataset to 0.9%.
+##### Slow learning
 
-This skewing did, however, slow down the improvement of the training accuracy. The learning rate was increased from 0.001 to 0.005, but this caused validation accuracy to fall from 95% to 92%, so 0.001 was retained. Instead, the number of epoch was increased to 15. Learning rate and number of epochs was adjusted last.
+The validation accuracy both 1) stayed higher than the training accuracy and 2) improved faster than the training accuracy, over most or all epochs, no matter what hyperparameters were used. As this was happening, both accuracies were generally monotonically increasing and converging, suggesting there was no overfitting yet. Regardless, it showed that the speed of training could be improved.
+
+The slowness was found to be very sensitive to the random initialization of weights. In the end, the original values from the lab, of `mu = 0; sigma = 0.1`, were chosen.
+
+A learning rate schedule was added to alleviate the slowness, but it was found that any learning rate deviating too far from 0.001 would adversely affect accuracies.
+
+Previously, an even more ambitious data generation strategy was used, s.t. validation dataset was as low as 0.9% of the training dataset. Scaling this back improved the speed.
+
+The number of epoch was increased to 20, to ensure the beginning of overfitting was observed. Epoch 11 was arbitrarily chosen as the epoch before overfitting started, and this became the model used for the rest of the project. However, validation accuracy stops improving after epoch 8, and that could arguably be another correct choice.
+
+##### Precision and recall
+
+After the model was chosen, its performance on test dataset was evaluated, including precision and recall. To follow along in the notebook, see [here](report.html#Step-3:-Test-a-Model-on-New-Images) and scroll up.
+
+In very general terms, those with triangle, class ids 18 to 31, seem to have lower precision or recall, particularly 27 the "Pedestrians" class, and so do classes 40 and 41, which has more complex features.
 
 ####4. Describe the approach taken for finding a solution and getting the validation set accuracy to be at least 0.93. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
 
 My final model results were:
-* training set accuracy of 93.3%
-* validation set accuracy of 95.1% 
-* test set accuracy of 93.7%
+
+* training set accuracy of 95.3%
+* validation set accuracy of 97.4% 
+* test set accuracy of 95.4%
 
 If an iterative approach was chosen:
+
 * What was the first architecture that was tried and why was it chosen?
   - The architecture was based on LeNet, because it has been successfully trained on traffic signs.
 * What were some problems with the initial architecture?
@@ -179,29 +219,32 @@ If an iterative approach was chosen:
   - Adding more depth to existing convolutional layers may help if there is a need to recognize a larger variety of features, such as lines curved in a specific way. But LeNet's configuration seems to be sufficient.
 * Which parameters were tuned? How were they adjusted and why?
   - Sections above describe how hyperparameters were tuned. Among the sensitive ones were weight initialization, dropout rate, L2 multiplyer, and learning rate.
-  - The graph of training and validation accuracy was the sole guidance for tuning (I did not cheat by using test accuracy).
+  - The graph of training and validation accuracy was the sole guidance for tuning (Test accuracy was not used).
 * What are some of the important design choices and why were they chosen? For example, why might a convolution layer work well with this problem? How might a dropout layer help with creating a successful model?
-  - Convolution helps greatly with translation invariance.
+  - Convolution helps greatly with multi-dimensional inputs such as images. It helps with translation invariance.
   - Dropout is thought to help by reducing reliance of any given neuron on any specific subset of its input neurons.
 
 If a well known architecture was chosen:
+
 * What architecture was chosen?
   - The architecture was based on LeNet
 * Why did you believe it would be relevant to the traffic sign application?
-  - LeNet was successfully trained on similar traffic signs. Traffic signs have the advantage of being "unique, rigid and intended to be clearly visible ..., and have little variability in appearance" (Sermanet et al., 2011); hence any architecture that is proven to work with approximately 43 classes of such images should also work.
+  - LeNet was successfully trained on similar traffic signs. Traffic signs have the advantage of being "unique, rigid and intended to be clearly visible ..., and have little variability in appearance" (Sermanet et al., 2011); hence any architecture that is proven to work with approximately 43 classes of such 2D images should also work.
 * How does the final model's accuracy on the training, validation and test set provide evidence that the model is working well?
-  - The test accuracy and training accuracy are close enough to curtail fears of overfitting, and are both high enough to approximate human capability.
+  - The test accuracy and training accuracy are close enough to curtail fears of overfitting, and are both high enough to approximate or exceed human capability.
 
 ###Test a Model on New Images
 
 ####1. Choose five German traffic signs found on the web and provide them in the report. For each image, discuss what quality or qualities might be difficult to classify.
 
-Here are five German traffic signs that I found on the web: [as files](test_images_extra) and [in the notebook](report.html#Load-and-Output-the-Images).
+Here are the German traffic signs that I found on the web: [as files](test_images_extra) and [in the notebook](report.html#Load-and-Output-the-Images).
 
 Among the 10 images chosen, 2 that are named `*.tricky.jpg` were thought to be difficult to recognize.
 
-- `18.tricky.jpg` because it contains the desired features in the upper half, and the other half contains distracting features that are not seen in the training dataset.
-- `31.tricky.jpg` because it is a valid real-world variation for which there is no adequate trainig. The cow it contains in the triangle is valid for class 31 ("Wild animals crossing"), but most (or all?) training samples for this class contain deer. The blob of the cow legitimately resembles other blobs, such as those of a truck or an arrow. This shows safety issue that would occur if the trained model were to be deployed in the real world.
+- `18.tricky.jpg` because it contains the desired features in the upper half, and the other half contains features that are distracting as well as untrained for.
+- `31.tricky.jpg` because it is a valid real-world variation for which there is no adequate trainig. The cow it contains in the triangle is valid for class 31 ("Wild animals crossing"), but most (or all?) training samples for this class contain deer. The blob of the cow legitimately resembles other blobs, such as that of a truck or an arrow. This shows safety issue that would occur if the trained model were to be deployed in the real world.
+
+In addition, `27.jpg` was expected to be difficult, because the class, "Pedestrians", had low precision and low recall.
 
 Additional tricky images could have been found that contained stickers/graffitis, shadows, glares, etc.
 
@@ -209,12 +252,12 @@ Additional tricky images could have been found that contained stickers/graffitis
 
 Follow along in the notebook [here](report.html#Output-Top-5-Softmax-Probabilities-For-Each-Image-Found-on-the-Web).
 
-As expected the 2 "tricky" images were not classified correctly. All others were, however, resulting in the overall accuracy of `8/10 = 80%`.
+As expected the 2 "tricky" images were not classified correctly. All others were, however, including the "Pedestrians" image, resulting in the overall accuracy of `9/11 = 81.8%`.
 
-A direct comparison of this 80% figure against the test accuracy (94%), validation accuracy (95%), or the training accuracy (93%), would not be meaningful because:
+A direct comparison of this 81.8% figure against the test accuracy (95.4%), validation accuracy (97.4%), or the training accuracy (95.3%), would not be meaningful because:
 
-- the additional test sample size is miniscule at 10
-- they were purposely handpicked such that 20% were expected to fail due to above reasons and the remaining 80% were chosen with clear features to ensure their success.
+- the additional test sample size is miniscule, at 11
+- they were purposely handpicked such that 18% were expected to fail due to above reasons and the remaining 82% were chosen with clear features to ensure their success.
 
 ####3. Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction. Provide the top 5 softmax probabilities for each image along with the sign type of each probability. (OPTIONAL: as described in the "Stand Out Suggestions" part of the rubric, visualizations can also be provided such as bar charts)
 
@@ -225,27 +268,36 @@ Example of images that yielded ...
 A *large* gap between the two 1st choices and *high* confidence on the 1st choice:
 
 - `12`. This probably owes to the diamond shape that is unique among the classes
+- The non-tricky `18`. Notice that this was a success even though this image is skewed in a way that was not accounted for by image generation.
 
 A *large* gap between the two 1st choices but *low* confidence on the 1st choice:
 
-- `35` and `32`. Both contain features (circular outline, arrowhead, and diagonal cross) that are shared by other classes.
+- `32`. Perhaps it's low because the conversion to 32x32 resolution had left some aliasing.
 
 A *small* gap between the 1st choices but *high* confidence on the 1st choice:
 
-- The non-tricky `18`. It is conjectured that the rotation and skewed enabled the non-1st choices to be likely.
+- `40`. It is curious that none of the other top 6 choices are round or contain arrowheads.
+- The two tricky images, `18` and `31`, both of which come to wrong predictions.
 
 A *small* gap between the 1st choices and *low* confidence on the 1st choice:
 
-- `36` was almost a mismatch (13% vs 12% top choices). The watermark could have caused the right-pointing arrow to be considered as a potential noise, leading to the 2nd choice being the straight arrow.
+- In a previous model, `36` was almost a mismatch (13% vs 12% top choices). The watermark could have caused the right-pointing arrow to be considered as a potential noise, leading to the 2nd choice being the straight arrow. The descrepancy against the final model shows that human interpretations of results in this fashion should not be considred reliable.
 
 ### (Optional) Visualizing the Neural Network (See Step 4 of the Ipython notebook for more details)
 
 ####1. Discuss the visual output of your trained network's feature maps. What characteristics did the neural network use to make classifications?
 
+The following were drawn:
 
-TODO!!
+- Activation at convolution layers 1 and 2
+- Trained weights at both convolution layers
 
+At layer 1, for all classes, line features are clrealy activated. Layer 2 activate presence of layer 1 over patches, and is more difficult to interpret.
+
+Layer 1 weights seem to detect lines and dots, and layer 2 weights seem to detect lines, symmetricity, and more complex features.
 
 ### References
 
 P. Sermanet and Y. LeCun. Traffic sign recognition with multi-scale convolutional networks. In Proceedings of International Joint Conference on Neural Networks (IJCNN’11), 2011.
+
+H. Hosseini, B. Xiao and R. Poovendran. Google’s Cloud Vision API Is Not Robust To Noise. 2017.
