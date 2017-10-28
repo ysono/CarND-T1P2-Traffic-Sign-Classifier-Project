@@ -176,29 +176,37 @@ Dropout was added. Its location was chosen by experiment to be at the layer with
 
 Follow along in this notebook section [here](https://ysono.github.io/CarND-T1P2-Traffic-Sign-Classifier-Project/report.html#Train,-Validate-and-Test-the-Model).
 
-The output of the model was converted to softmax, and hence cross-entropy was used as the cost.
-
-L2 cost was added. The L2 multiplier (lambda / n) was initially chosen at 0.1, and then divided by 10 till an optimal value of 0.0001 was found.
+The output of the model was converted to softmax, and hence cross-entropy was used as its cost. L2 cost was added to this. Adam optimizer minimzed this cost.
 
 The batch size of 10 was retained from the CarND LeNet lab, with the assumption it was optimized for aws g2.2xlarge.
 
 ##### Slow learning
 
-The validation accuracy both 1) stayed higher than the training accuracy and 2) improved faster than the training accuracy, over most or all epochs, no matter what hyperparameters were used. As this was happening, both accuracies were generally monotonically increasing and converging, suggesting there was no overfitting yet. Regardless, it showed that the speed of training could be improved.
+The validation accuracy both 1) stayed higher than the training accuracy and 2) improved faster than the training accuracy, over most or all epochs, no matter what architectural variation or what hyperparameters were used. As this was happening, both accuracies were generally monotonically increasing and converging, suggesting there was no overfitting yet. The relative slowness of the latter's improvement showed that the speed of training could be improved.
 
-The slowness was found to be very sensitive to the random initialization of weights. In the end, the original values from the lab, of `mu = 0; sigma = 0.1`, were chosen.
+The slowness was found to be most sensitive to the random initialization of weights. In the end, the original values from the lab, of `mu = 0; sigma = 0.1`, were chosen.
 
 A learning rate schedule was added to alleviate the slowness, but it was found that any learning rate deviating too far from 0.001 would adversely affect accuracies.
 
-Previously, an even more ambitious data generation strategy was used, s.t. validation dataset was as low as 0.9% of the training dataset. Scaling this back improved the speed.
+The L2 multiplier (lambda / n) was initially chosen at 0.1, and then divided by 10 till an optimal value of 0.0001 was found. Not only did this reduced value yield better accuracy, it may have sped up learning.
 
-The number of epoch was increased to 20, to ensure the beginning of overfitting was observed. Epoch 11 was arbitrarily chosen as the epoch before overfitting started, and this became the model used for the rest of the project. However, validation accuracy stops improving after epoch 8, and that could arguably be another correct choice.
+Previously, an even more ambitious data generation strategy had been used, s.t. validation dataset was as low as 0.9% of the training dataset. Scaling back generation improved the speed.
+
+The number of epoch was increased to 20, to ensure the beginning of overfitting was observed. After satisfactory training and validation accuracies were observed, epoch 11 was arbitrarily chosen as the epoch before overfitting started, and this became the final model used for the rest of the project. However, validation accuracy stops improving after epoch 8, and that could arguably be another correct choice.
 
 ##### Precision and recall
 
-After the model was chosen, its performance on test dataset was evaluated, including precision and recall. To follow along in the notebook, see this section [here](https://ysono.github.io/CarND-T1P2-Traffic-Sign-Classifier-Project/report.html#Step-3:-Test-a-Model-on-New-Images) and scroll up.
+After the model was chosen, its performance on the test dataset was evaluated, including precision and recall. To follow along in the notebook, see this section [here](https://ysono.github.io/CarND-T1P2-Traffic-Sign-Classifier-Project/report.html#Step-3:-Test-a-Model-on-New-Images) and scroll up to the bar graph.
 
-In very general terms, those with triangle, class ids 18 to 31, seem to have lower precision or recall, particularly 27 the "Pedestrians" class, and so do classes 40 and 41, which has more complex features.
+In very general terms, some of those signs that are framed by an upright triangle, mostly classes `20` to `31`, seem to have lower precision or recall, and so do classes `40` and `41`, which has more complex features.
+
+Misclassification is sometimes unidirectional. For example, class `27` is often misclassified as `11`, but not often the other way around. Similarly, `11` is often misclassified as `30`, but not often vice versa.
+
+In other examples, misclassification is mutual, e.g. between `5` and `7`.
+
+In order to improve prediction on these select classes with low precision and/or recall, and without overfitting, the best remedy should be to acquire more training samples for these.
+
+If acquiring new samples is difficult, new samples should be generated by increasing contrast, zooming in, or otherwise accentuating the contours.
 
 #### 4. Describe the approach taken for finding a solution and getting the validation set accuracy to be at least 0.93. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
 
@@ -229,7 +237,7 @@ If a well known architecture was chosen:
 * What architecture was chosen?
     * The architecture was based on LeNet
 * Why did you believe it would be relevant to the traffic sign application?
-    * LeNet was successfully trained on similar traffic signs. Traffic signs have the advantage of being "unique, rigid and intended to be clearly visible ..., and have little variability in appearance" (Sermanet et al., 2011); hence any architecture that is proven to work with approximately 43 classes of such 2D images should also work.
+    * LeNet was successfully trained on similar traffic signs. Traffic signs have the advantage of being "unique, rigid and intended to be clearly visible ..., and have little variability in appearance" (Sermanet et al., 2011); hence any architecture that is proven to work with approximately 43 classes of such rigid 2D images should also work.
 * How does the final model's accuracy on the training, validation and test set provide evidence that the model is working well?
     * The test accuracy and training accuracy are close enough to curtail fears of overfitting, and are both high enough to approximate or exceed human capability.
 
@@ -239,12 +247,15 @@ If a well known architecture was chosen:
 
 Here are the German traffic signs that I found on the web: [as files](test_images_extra) and [in the notebook](https://ysono.github.io/CarND-T1P2-Traffic-Sign-Classifier-Project/report.html#Load-and-Output-the-Images).
 
-Among the 10 images chosen, 2 that are named `*.tricky.jpg` were thought to be difficult to recognize.
+Among the 10 images chosen, 2 that are named `*.tricky.jpg` were thought to be difficult to classify.
 
 - `18.tricky.jpg` because it contains the desired features in the upper half, and the other half contains features that are distracting as well as untrained for.
 - `31.tricky.jpg` because it is a valid real-world variation for which there is no adequate trainig. The cow it contains in the triangle is valid for class 31 ("Wild animals crossing"), but most (or all?) training samples for this class contain deer. The blob of the cow legitimately resembles other blobs, such as that of a truck or an arrow. This shows safety issue that would occur if the trained model were to be deployed in the real world.
 
-In addition, `27.jpg` was expected to be difficult, because the class, "Pedestrians", had low precision and low recall.
+To potentially demonstrate the low recall *and* low precision of class `27`, both classes `18` and `27` were represented among the images chosen.
+
+- Given class `11` is a common false negative for `27`, misclassification of `27.jpg` as a `11` would demonstrate low recall.
+- Given class `18` is a common false positive for `27`, misclassification of either `18.jpg` or `18.tricky.jpg` as a `27` would demonstrate low precision.
 
 Additional tricky images could have been found that contained stickers/graffitis, shadows, glares, etc.
 
@@ -261,18 +272,18 @@ A direct comparison of this 81.8% figure against the test accuracy (95.4%), vali
 
 #### 3. Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction. Provide the top 5 softmax probabilities for each image along with the sign type of each probability. (OPTIONAL: as described in the "Stand Out Suggestions" part of the rubric, visualizations can also be provided such as bar charts)
 
-Follow along in the notebook at the same location [here](https://ysono.github.io/CarND-T1P2-Traffic-Sign-Classifier-Project/report.html#Output-Top-5-Softmax-Probabilities-For-Each-Image-Found-on-the-Web) and scroll down.
+Follow along in the notebook at the same section [here](https://ysono.github.io/CarND-T1P2-Traffic-Sign-Classifier-Project/report.html#Output-Top-5-Softmax-Probabilities-For-Each-Image-Found-on-the-Web) and scroll down.
 
 Example of images that yielded ...
 
 A *large* gap between the two 1st choices and *high* confidence on the 1st choice:
 
-- `12`. This probably owes to the diamond shape that is unique among the classes
+- `12`
 - The non-tricky `18`. Notice that this was a success even though this image is skewed in a way that was not accounted for by image generation.
 
 A *large* gap between the two 1st choices but *low* confidence on the 1st choice:
 
-- `32`. Perhaps it's low because the conversion to 32x32 resolution had left some aliasing.
+- `32`
 
 A *small* gap between the 1st choices but *high* confidence on the 1st choice:
 
@@ -281,7 +292,11 @@ A *small* gap between the 1st choices but *high* confidence on the 1st choice:
 
 A *small* gap between the 1st choices and *low* confidence on the 1st choice:
 
-- In a previous model, `36` was almost a mismatch (13% vs 12% top choices). The watermark could have caused the right-pointing arrow to be considered as a potential noise, leading to the 2nd choice being the straight arrow. The descrepancy against the final model shows that human interpretations of results in this fashion should not be considred reliable.
+- In a previous model, `36` was a near-mismatch (13% vs 12% top choices), but this is not the case with the final model. (This descrepancy shows that, while two models trained in a similar way may predict similarly in bulk, they may predict differently for any given input, and that it is not easy to estimate reasoning behind any single instance of prediction.)
+
+The low recall of class `27` was not well demonstrated with `27.jpg`, because the model predicted at high confidence for the correct choice and at much lower confidence for the 2nd.
+
+The low precision of class `27` was weakly demonstrated with `18.jpg`, because the 2nd choice was `27`, albeit at a large gap in confidence.
 
 ### (Optional) Visualizing the Neural Network (See Step 4 of the Ipython notebook for more details)
 
