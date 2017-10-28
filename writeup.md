@@ -1,4 +1,4 @@
-#**Traffic Sign Recognition** 
+# **Traffic Sign Recognition** 
 
 **Build a Traffic Sign Recognition Project**
 
@@ -19,21 +19,21 @@ Follow along in the notebook [here](https://ysono.github.io/CarND-T1P2-Traffic-S
 
 ## Rubric Points
 
-###Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/481/view) individually and describe how I addressed each point in my implementation.
+### Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/481/view) individually and describe how I addressed each point in my implementation.
 
 ---
 
-###Writeup / README
+### Writeup / README
 
-####1. The submission includes the following:
+#### 1. The submission includes the following:
 
 - This writeup
 - The [notebook](Traffic_Sign_Classifier.ipynb) and its [html](https://ysono.github.io/CarND-T1P2-Traffic-Sign-Classifier-Project/report.html) version
 - The whole [project](https://github.com/ysono/CarND-T1P2-Traffic-Sign-Classifier-Project/) and its [readme](README.md)
 
-###Data Set Summary & Exploration
+### Data Set Summary & Exploration
 
-####1. Provide a basic summary of the data set. In the code, the analysis should be done using python, numpy and/or pandas methods rather than hardcoding results manually.
+#### 1. Provide a basic summary of the data set. In the code, the analysis should be done using python, numpy and/or pandas methods rather than hardcoding results manually.
 
 Follow along in this notebook section [here](https://ysono.github.io/CarND-T1P2-Traffic-Sign-Classifier-Project/report.html#Provide-a-Basic-Summary-of-the-Data-Set-Using-Python,-Numpy-and/or-Pandas).
 
@@ -43,7 +43,7 @@ Follow along in this notebook section [here](https://ysono.github.io/CarND-T1P2-
 * The shape of a traffic sign image is (32, 32, 3)
 * The number of unique classes/labels in the data set is 43
 
-####2. Include an exploratory visualization of the dataset.
+#### 2. Include an exploratory visualization of the dataset.
 
 Follow along in this notebook section [here](https://ysono.github.io/CarND-T1P2-Traffic-Sign-Classifier-Project/report.html#Include-an-exploratory-visualization-of-the-dataset).
 
@@ -51,9 +51,9 @@ First, a histogram is plotted to show the uneven distribution of classes in the 
 
 Then, a sample of each class is shown by choosing the first instance of that class. This is done for the training, validation, and test datasets (without shuffling the datasets).
 
-###Design and Test a Model Architecture
+### Design and Test a Model Architecture
 
-####1. Describe how you preprocessed the image data. What techniques were chosen and why did you choose these techniques? Consider including images showing the output of each preprocessing technique. Pre-processing refers to techniques such as converting to grayscale, normalization, etc. (OPTIONAL: As described in the "Stand Out Suggestions" part of the rubric, if you generated additional data for training, describe why you decided to generate additional data, how you generated the data, and provide example images of the additional data. Then describe the characteristics of the augmented training set like number of images in the set, number of images for each class, etc.)
+#### 1. Describe how you preprocessed the image data. What techniques were chosen and why did you choose these techniques? Consider including images showing the output of each preprocessing technique. Pre-processing refers to techniques such as converting to grayscale, normalization, etc. (OPTIONAL: As described in the "Stand Out Suggestions" part of the rubric, if you generated additional data for training, describe why you decided to generate additional data, how you generated the data, and provide example images of the additional data. Then describe the characteristics of the augmented training set like number of images in the set, number of images for each class, etc.)
 
 The decisions on pre-processing and generation operations were iterative: for each change, a model was trained on the changed dataset and its accuracy was evaluated. These decisions were retained or rejected based on improvements on the model and performance side effects.
 
@@ -140,7 +140,7 @@ The goal of sample generation is to replicate some of these natural effects and 
 
 The goal of pre-processing is to constrain the scalar of each pixel to `[-1, 1]`, and to consequently prevent weight instability. The combination of grayscaling and normalizing increased the per-pixel memory size from `3 * uint8 = 3 bytes` to `1 * float32 = 4 bytes`.
 
-####2. Describe what your final model architecture looks like including model type, layers, layer sizes, connectivity, etc.) Consider including a diagram and/or table describing the final model.
+#### 2. Describe what your final model architecture looks like including model type, layers, layer sizes, connectivity, etc.) Consider including a diagram and/or table describing the final model.
 
 Follow along in this notebook section [here](https://ysono.github.io/CarND-T1P2-Traffic-Sign-Classifier-Project/report.html#Model-Architecture).
 
@@ -172,7 +172,7 @@ These aspects of the model were retained from the CarND LeNet lab:
 
 Dropout was added. Its location was chosen by experiment to be at the layer with 120 outputs, and `keep_prob` was chosen at 50%.
 
-####3. Describe how you trained your model. The discussion can include the type of optimizer, the batch size, number of epochs and any hyperparameters such as learning rate.
+#### 3. Describe how you trained your model. The discussion can include the type of optimizer, the batch size, number of epochs and any hyperparameters such as learning rate.
 
 Follow along in this notebook section [here](https://ysono.github.io/CarND-T1P2-Traffic-Sign-Classifier-Project/report.html#Train,-Validate-and-Test-the-Model).
 
@@ -200,7 +200,7 @@ After the model was chosen, its performance on test dataset was evaluated, inclu
 
 In very general terms, those with triangle, class ids 18 to 31, seem to have lower precision or recall, particularly 27 the "Pedestrians" class, and so do classes 40 and 41, which has more complex features.
 
-####4. Describe the approach taken for finding a solution and getting the validation set accuracy to be at least 0.93. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
+#### 4. Describe the approach taken for finding a solution and getting the validation set accuracy to be at least 0.93. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
 
 My final model results were:
 
@@ -233,9 +233,9 @@ If a well known architecture was chosen:
 * How does the final model's accuracy on the training, validation and test set provide evidence that the model is working well?
     * The test accuracy and training accuracy are close enough to curtail fears of overfitting, and are both high enough to approximate or exceed human capability.
 
-###Test a Model on New Images
+### Test a Model on New Images
 
-####1. Choose five German traffic signs found on the web and provide them in the report. For each image, discuss what quality or qualities might be difficult to classify.
+#### 1. Choose five German traffic signs found on the web and provide them in the report. For each image, discuss what quality or qualities might be difficult to classify.
 
 Here are the German traffic signs that I found on the web: [as files](test_images_extra) and [in the notebook](https://ysono.github.io/CarND-T1P2-Traffic-Sign-Classifier-Project/report.html#Load-and-Output-the-Images).
 
@@ -248,7 +248,7 @@ In addition, `27.jpg` was expected to be difficult, because the class, "Pedestri
 
 Additional tricky images could have been found that contained stickers/graffitis, shadows, glares, etc.
 
-####2. Discuss the model's predictions on these new traffic signs and compare the results to predicting on the test set. At a minimum, discuss what the predictions were, the accuracy on these new predictions, and compare the accuracy to the accuracy on the test set (OPTIONAL: Discuss the results in more detail as described in the "Stand Out Suggestions" part of the rubric).
+#### 2. Discuss the model's predictions on these new traffic signs and compare the results to predicting on the test set. At a minimum, discuss what the predictions were, the accuracy on these new predictions, and compare the accuracy to the accuracy on the test set (OPTIONAL: Discuss the results in more detail as described in the "Stand Out Suggestions" part of the rubric).
 
 Follow along in this notebook section [here](https://ysono.github.io/CarND-T1P2-Traffic-Sign-Classifier-Project/report.html#Output-Top-5-Softmax-Probabilities-For-Each-Image-Found-on-the-Web).
 
@@ -259,7 +259,7 @@ A direct comparison of this 81.8% figure against the test accuracy (95.4%), vali
 - the additional test sample size is miniscule, at 11
 - they were purposely handpicked such that 18% were expected to fail due to above reasons and the remaining 82% were chosen with clear features to ensure their success.
 
-####3. Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction. Provide the top 5 softmax probabilities for each image along with the sign type of each probability. (OPTIONAL: as described in the "Stand Out Suggestions" part of the rubric, visualizations can also be provided such as bar charts)
+#### 3. Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction. Provide the top 5 softmax probabilities for each image along with the sign type of each probability. (OPTIONAL: as described in the "Stand Out Suggestions" part of the rubric, visualizations can also be provided such as bar charts)
 
 Follow along in the notebook at the same location [here](https://ysono.github.io/CarND-T1P2-Traffic-Sign-Classifier-Project/report.html#Output-Top-5-Softmax-Probabilities-For-Each-Image-Found-on-the-Web) and scroll down.
 
@@ -285,7 +285,7 @@ A *small* gap between the 1st choices and *low* confidence on the 1st choice:
 
 ### (Optional) Visualizing the Neural Network (See Step 4 of the Ipython notebook for more details)
 
-####1. Discuss the visual output of your trained network's feature maps. What characteristics did the neural network use to make classifications?
+#### 1. Discuss the visual output of your trained network's feature maps. What characteristics did the neural network use to make classifications?
 
 Follow along in this notebook section [here](https://ysono.github.io/CarND-T1P2-Traffic-Sign-Classifier-Project/report.html#Step-4-(Optional):-Visualize-the-Neural-Network's-State-with-Test-Images).
 
