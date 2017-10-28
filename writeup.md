@@ -19,7 +19,7 @@ Follow along in the notebook [here](report.html#Step-0:-Load-The-Data).
 
 ## Rubric Points
 
-###Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/481/view) individually and describe how I addressed each point in my implementation.  
+###Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/481/view) individually and describe how I addressed each point in my implementation.
 
 ---
 
@@ -35,7 +35,7 @@ Follow along in the notebook [here](report.html#Step-0:-Load-The-Data).
 
 ####1. Provide a basic summary of the data set. In the code, the analysis should be done using python, numpy and/or pandas methods rather than hardcoding results manually.
 
-Follow along in the notebook [here](report.html#Provide-a-Basic-Summary-of-the-Data-Set-Using-Python,-Numpy-and/or-Pandas).
+Follow along in this notebook section [here](report.html#Provide-a-Basic-Summary-of-the-Data-Set-Using-Python,-Numpy-and/or-Pandas).
 
 * The size of training set is 34799
 * The size of the validation set is 4410
@@ -45,7 +45,7 @@ Follow along in the notebook [here](report.html#Provide-a-Basic-Summary-of-the-D
 
 ####2. Include an exploratory visualization of the dataset.
 
-Follow along in the notebook [here](report.html#Include-an-exploratory-visualization-of-the-dataset).
+Follow along in this notebook section [here](report.html#Include-an-exploratory-visualization-of-the-dataset).
 
 First, a histogram is plotted to show the uneven distribution of classes in the training dataset.
 
@@ -57,7 +57,7 @@ Then, a sample of each class is shown by choosing the first instance of that cla
 
 The decisions on pre-processing and generation operations were iterative: for each change, a model was trained on the changed dataset and its accuracy was evaluated. These decisions were retained or rejected based on improvements on the model and performance side effects.
 
-Therefore, the presentation in this writeup and in the notebook is not chronological. The effect of each operation is visualized by applying that operation alone on the raw dataset. Follow along in the notebook [here](report.html#Pre-process-the-Data-Set-(normalization,-grayscale,-etc.)).
+Therefore, the presentation in this writeup and in the notebook is not chronological. The effect of each operation is visualized by applying that operation alone on the raw dataset. Follow along in this notebook section [here](report.html#Pre-process-the-Data-Set-(normalization,-grayscale,-etc.)).
 
 ##### 1. Grayscale
 
@@ -142,7 +142,7 @@ The goal of pre-processing is to constrain the scalar of each pixel to `[-1, 1]`
 
 ####2. Describe what your final model architecture looks like including model type, layers, layer sizes, connectivity, etc.) Consider including a diagram and/or table describing the final model.
 
-Follow along in the notebook [here](report.html#Model-Architecture).
+Follow along in this notebook section [here](report.html#Model-Architecture).
 
 My final model consisted of the following layers:
 
@@ -174,7 +174,7 @@ Dropout was added. Its location was chosen by experiment to be at the layer with
 
 ####3. Describe how you trained your model. The discussion can include the type of optimizer, the batch size, number of epochs and any hyperparameters such as learning rate.
 
-Follow along in the notebook [here](report.html#Train,-Validate-and-Test-the-Model).
+Follow along in this notebook section [here](report.html#Train,-Validate-and-Test-the-Model).
 
 The output of the model was converted to softmax, and hence cross-entropy was used as the cost.
 
@@ -196,7 +196,7 @@ The number of epoch was increased to 20, to ensure the beginning of overfitting 
 
 ##### Precision and recall
 
-After the model was chosen, its performance on test dataset was evaluated, including precision and recall. To follow along in the notebook, see [here](report.html#Step-3:-Test-a-Model-on-New-Images) and scroll up.
+After the model was chosen, its performance on test dataset was evaluated, including precision and recall. To follow along in the notebook, see this section [here](report.html#Step-3:-Test-a-Model-on-New-Images) and scroll up.
 
 In very general terms, those with triangle, class ids 18 to 31, seem to have lower precision or recall, particularly 27 the "Pedestrians" class, and so do classes 40 and 41, which has more complex features.
 
@@ -211,27 +211,27 @@ My final model results were:
 If an iterative approach was chosen:
 
 * What was the first architecture that was tried and why was it chosen?
-  - The architecture was based on LeNet, because it has been successfully trained on traffic signs.
+    * The architecture was based on LeNet, because it has been successfully trained on traffic signs.
 * What were some problems with the initial architecture?
-  - Although it is not clear whether the original LeNet has inherent problems, the initial architecture was severely underperforming, at sub-10% validation accuracy after 10 epochs, until the correct weight initialization (mu, sigma) and learning rate were chosen.
+    * Although it is not clear whether the original LeNet has inherent problems, the initial architecture was severely underperforming, at sub-10% validation accuracy after 10 epochs, until the correct weight initialization (mu, sigma) and learning rate were chosen.
 * How was the architecture adjusted and why was it adjusted? Typical adjustments could include choosing a different model architecture, adding or taking away layers (pooling, dropout, convolution, etc), using an activation function or changing the activation function. One common justification for adjusting an architecture would be due to overfitting or underfitting. A high accuracy on the training set but low accuracy on the validation set indicates over fitting; a low accuracy on both sets indicates under fitting.
-  - Adding more convolutional layer may help if traffic signs allowed different positional composition of the same features. However, traffic signs are fairly rigid.
-  - Adding more depth to existing convolutional layers may help if there is a need to recognize a larger variety of features, such as lines curved in a specific way. But LeNet's configuration seems to be sufficient.
+    * Adding more convolutional layer may help if traffic signs allowed different positional composition of the same features. However, traffic signs are fairly rigid.
+    * Adding more depth to existing convolutional layers may help if there is a need to recognize a larger variety of features, such as lines curved in a specific way. But LeNet's configuration seems to be sufficient.
 * Which parameters were tuned? How were they adjusted and why?
-  - Sections above describe how hyperparameters were tuned. Among the sensitive ones were weight initialization, dropout rate, L2 multiplyer, and learning rate.
-  - The graph of training and validation accuracy was the sole guidance for tuning (Test accuracy was not used).
+    * Sections above describe how hyperparameters were tuned. Among the sensitive ones were weight initialization, dropout rate, L2 multiplyer, and learning rate.
+    * The graph of training and validation accuracy was the sole guidance for tuning (Test accuracy was not used).
 * What are some of the important design choices and why were they chosen? For example, why might a convolution layer work well with this problem? How might a dropout layer help with creating a successful model?
-  - Convolution helps greatly with multi-dimensional inputs such as images. It helps with translation invariance.
-  - Dropout is thought to help by reducing reliance of any given neuron on any specific subset of its input neurons.
+    * Convolution helps greatly with multi-dimensional inputs such as images. It helps with translation invariance.
+    * Dropout is thought to help by reducing reliance of any given neuron on any specific subset of its input neurons.
 
 If a well known architecture was chosen:
 
 * What architecture was chosen?
-  - The architecture was based on LeNet
+    * The architecture was based on LeNet
 * Why did you believe it would be relevant to the traffic sign application?
-  - LeNet was successfully trained on similar traffic signs. Traffic signs have the advantage of being "unique, rigid and intended to be clearly visible ..., and have little variability in appearance" (Sermanet et al., 2011); hence any architecture that is proven to work with approximately 43 classes of such 2D images should also work.
+    * LeNet was successfully trained on similar traffic signs. Traffic signs have the advantage of being "unique, rigid and intended to be clearly visible ..., and have little variability in appearance" (Sermanet et al., 2011); hence any architecture that is proven to work with approximately 43 classes of such 2D images should also work.
 * How does the final model's accuracy on the training, validation and test set provide evidence that the model is working well?
-  - The test accuracy and training accuracy are close enough to curtail fears of overfitting, and are both high enough to approximate or exceed human capability.
+    * The test accuracy and training accuracy are close enough to curtail fears of overfitting, and are both high enough to approximate or exceed human capability.
 
 ###Test a Model on New Images
 
@@ -250,7 +250,7 @@ Additional tricky images could have been found that contained stickers/graffitis
 
 ####2. Discuss the model's predictions on these new traffic signs and compare the results to predicting on the test set. At a minimum, discuss what the predictions were, the accuracy on these new predictions, and compare the accuracy to the accuracy on the test set (OPTIONAL: Discuss the results in more detail as described in the "Stand Out Suggestions" part of the rubric).
 
-Follow along in the notebook [here](report.html#Output-Top-5-Softmax-Probabilities-For-Each-Image-Found-on-the-Web).
+Follow along in this notebook section [here](report.html#Output-Top-5-Softmax-Probabilities-For-Each-Image-Found-on-the-Web).
 
 As expected the 2 "tricky" images were not classified correctly. All others were, however, including the "Pedestrians" image, resulting in the overall accuracy of `9/11 = 81.8%`.
 
@@ -286,6 +286,8 @@ A *small* gap between the 1st choices and *low* confidence on the 1st choice:
 ### (Optional) Visualizing the Neural Network (See Step 4 of the Ipython notebook for more details)
 
 ####1. Discuss the visual output of your trained network's feature maps. What characteristics did the neural network use to make classifications?
+
+Follow along in this notebook section [here](report.html#Step-4-(Optional):-Visualize-the-Neural-Network's-State-with-Test-Images).
 
 The following were drawn:
 
