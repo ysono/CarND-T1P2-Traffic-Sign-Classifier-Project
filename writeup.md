@@ -274,29 +274,13 @@ A direct comparison of this 81.8% figure against the test accuracy (95.4%), vali
 
 Follow along in the notebook at the same section [here](https://ysono.github.io/CarND-T1P2-Traffic-Sign-Classifier-Project/report.html#Output-Top-5-Softmax-Probabilities-For-Each-Image-Found-on-the-Web) and scroll down.
 
-Example of images that yielded ...
+Only `31.tricky.jpg` was classified with non-negligible likelihood of the 2nd choice.
 
-A *large* gap between the two 1st choices and *high* confidence on the 1st choice:
+The low recall of class `27` was not demonstrated with `27.jpg`, because the model predicted at high confidence for the correct class, and all secondary predictions were at negligible probabilities.
 
-- `12`
-- The non-tricky `18`. Notice that this was a success even though this image is skewed in a way that was not accounted for by image generation.
+The low precision of class `27` was weakly demonstrated with `18.jpg`, because its 2nd-likelihood prediction was `27`, albeit at a large gap in probability.
 
-A *large* gap between the two 1st choices but *low* confidence on the 1st choice:
-
-- `32`
-
-A *small* gap between the 1st choices but *high* confidence on the 1st choice:
-
-- `40`. It is curious that none of the other top 6 choices are round or contain arrowheads.
-- The two tricky images, `18` and `31`, both of which come to wrong predictions.
-
-A *small* gap between the 1st choices and *low* confidence on the 1st choice:
-
-- In a previous model, `36` was a near-mismatch (13% vs 12% top choices), but this is not the case with the final model. (This descrepancy shows that, while two models trained in a similar way may predict similarly in bulk, they may predict differently for any given input, and that it is not easy to estimate reasoning behind any single instance of prediction.)
-
-The low recall of class `27` was not well demonstrated with `27.jpg`, because the model predicted at high confidence for the correct choice and at much lower confidence for the 2nd.
-
-The low precision of class `27` was weakly demonstrated with `18.jpg`, because the 2nd choice was `27`, albeit at a large gap in confidence.
+`36.jpg` used to be a near-mismatch in a previous similar model (I think the only difference was lack of learning rate scheduling), with logit values of approx 13 and 12 for the top 2 predictions, which translates to `exp(13) / exp(12) = exp(1) = 2.7` times likelihood for the 1st prediction w.r.t. the 2nd. The final model does not have this problem. This descrepancy shows that, while two models trained in a similar way may predict similarly in bulk, they may predict differently for any given input, and that it is not easy to estimate reasoning behind any single instance of prediction.
 
 ### (Optional) Visualizing the Neural Network (See Step 4 of the Ipython notebook for more details)
 
